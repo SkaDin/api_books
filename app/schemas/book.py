@@ -3,12 +3,10 @@ import re
 from datetime import date
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator, PastDate
+from pydantic import BaseModel, Field, field_validator
 
 
-class BookCreate(BaseModel):
-    """Schemas fro Book."""
-
+class BookBase(BaseModel):
     title: str = Field(..., max_length=30, title="Название книги")
     image: Optional[str] = None
     description: str
@@ -19,11 +17,26 @@ class BookCreate(BaseModel):
     class Config:
         str_min_length = 2
 
-    @field_validator("title", "description", "author")
     @classmethod
+    @field_validator("title", "description", "author")
     def non_numeric_mixed_alphabet(cls, value: str) -> str:
         if re.search("[а-я]", value, re.IGNORECASE) and re.search(
             "[a-z]", value, re.IGNORECASE
         ):
             raise ValueError("Нельзя смешивать кириллицу и латиницу")
         return value
+
+
+class BookCreate(BookBase):
+    pass
+
+
+class BookDB(BaseModel):
+    id: int
+    title: str = Field(..., max_length=30, title="Название книги")
+    description: str
+    author: str = Field(..., max_length=64, title="Автор книги")
+    date_publication: date = None
+
+    class Config:
+        from_attributes = True
