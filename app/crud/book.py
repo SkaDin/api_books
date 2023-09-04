@@ -1,25 +1,32 @@
-from typing import Optional
+from typing import Optional, Sequence
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import AsyncSessionLocal
+from app.crud.base import CRUDBase
 from app.models.book import Book
-from app.schemas.book import BookCreate
 
 
-async def create_book(new_book: BookCreate) -> Book:
-    new_book_data = new_book.model_dump()
-    db_obj = Book(**new_book_data)
-    async with AsyncSessionLocal() as session:
-        session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
-    return db_obj
-
-
-async def get_book_id_by_description(book_description: str) -> Optional[int]:
-    async with AsyncSessionLocal() as session:
+class CRUDBook(CRUDBase):
+    @staticmethod
+    async def get_book_id_by_description(
+        book_description: str, session: AsyncSession
+    ) -> Optional[int]:
         db_book_id = await session.execute(
             select(Book.id).where(Book.description == book_description)
         )
         return db_book_id.scalars().first()
+
+    async def search_books_by_title(
+            self,
+            title: str,
+            session: AsyncSession
+    ) -> Sequence[Book]:
+        part = await session.execute(
+            select(self.model).where(Book.title.like(f'%{title}%'))
+        )
+        part = part.scalars().first()
+        return part
+
+
+book_crud = CRUDBook(Book)

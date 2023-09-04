@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, Integer, BigInteger
+from sqlalchemy import BigInteger, Column, String, Text
 
 from app.core.db import Base
 
@@ -11,4 +11,4 @@ class Book(Base):
     description = Column(Text)
     author = Column(String(64))
     date_publication = Column(BigInteger)
-    price = Column(Integer)
+    url_download = Column(String(255), unique=True)
