@@ -1,4 +1,3 @@
-import datetime
 import re
 from datetime import date
 from typing import Optional
@@ -12,10 +11,11 @@ class BookBase(BaseModel):
     description: str
     author: str = Field(..., max_length=64, title="Автор книги")
     date_publication: date = None
-    price: Optional[int] = None
+    url_download: Optional[str] = None
 
     class Config:
         str_min_length = 2
+        from_attributes = True
 
     @classmethod
     @field_validator("title", "description", "author")
@@ -31,12 +31,16 @@ class BookCreate(BookBase):
     pass
 
 
-class BookDB(BaseModel):
-    id: int
-    title: str = Field(..., max_length=30, title="Название книги")
-    description: str
-    author: str = Field(..., max_length=64, title="Автор книги")
-    date_publication: date = None
+class BookUpdate(BookBase):
+    @classmethod
+    @field_validator("title", "description", "author")
+    def check_name_is_not_empty(cls, value: str) -> str:
+        if value is None:
+            raise ValueError(
+                "Название, описание или автор не должны быть пустыми"
+            )
+        return value
 
-    class Config:
-        from_attributes = True
+
+class BookDB(BookBase):
+    id: int
