@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_async_session
 from app.crud.book import book_crud
 from app.models.book import Book
-from app.schemas.book import BookBase, BookCreate, BookUpdate, BookDB
+from app.schemas.book import BookBase, BookCreate, BookDB, BookUpdate
 
 router = APIRouter(tags=["Books"], prefix="/books")
 
@@ -87,21 +87,14 @@ async def check_book_exists(book_id: int, session: AsyncSession) -> Book:
 
 
 @router.get(
-    "/get_by_name",
-    response_model=BookBase,
-    response_model_exclude_none=True
+    "/get_by_name", response_model=BookBase, response_model_exclude_none=True
 )
 async def get_book_by_title(
-        book_title: str,
-        session: AsyncSession = Depends(get_async_session)
+    book_title: str, session: AsyncSession = Depends(get_async_session)
 ) -> Book:
-    book = await book_crud.search_books_by_title(
-        book_title,
-        session
-    )
+    book = await book_crud.search_books_by_title(book_title, session)
     if book is None:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail="Такой книги нет"
+            status_code=HTTPStatus.NOT_FOUND, detail="Такой книги нет"
         )
     return book

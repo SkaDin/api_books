@@ -18,12 +18,10 @@ class CRUDBook(CRUDBase):
         return db_book_id.scalars().first()
 
     async def search_books_by_title(
-            self,
-            title: str,
-            session: AsyncSession
+        self, title: str, session: AsyncSession
     ) -> Sequence[Book]:
         part = await session.execute(
-            select(self.model).where(Book.title.like(f'%{title}%'))
+            select(self.model).where(Book.title.like(f"%{title}%"))
         )
         part = part.scalars().first()
         return part
