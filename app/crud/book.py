@@ -1,9 +1,9 @@
-from typing import Optional, Sequence
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.base import CRUDBase
+from app.crud.crud_base import CRUDBase
 from app.models.book import Book
 
 
@@ -19,7 +19,7 @@ class CRUDBook(CRUDBase):
 
     async def search_books_by_title(
         self, title: str, session: AsyncSession
-    ) -> Sequence[Book]:
+    ) -> Book:
         part = await session.execute(
             select(self.model).where(Book.title.like(f"%{title}%"))
         )

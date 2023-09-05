@@ -10,6 +10,7 @@ load_dotenv()
 class Settings:
     app_title: str = os.getenv("APP_TITLE")
     db_url: str = os.getenv("DATABASE_URL")
+    secret: str = os.getenv("SECRET")
 
 
 settings = Settings()
