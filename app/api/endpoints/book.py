@@ -1,18 +1,22 @@
-from http import HTTPStatus
 from typing import Sequence
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.validators import (
+    check_duplicate,
+    check_book_exists,
+    obj_is_empty,
+)
 from app.core.db import get_async_session
 from app.crud.book import book_crud
 from app.models.book import Book
-from app.schemas.book import BookBase, BookCreate, BookDB, BookUpdate
+from app.schemas.book import BookCreate, BookDB, BookUpdate
 
-router = APIRouter(tags=["Books"], prefix="/books")
+router = APIRouter()
 
 
-@router.post("/", response_model=BookBase, response_model_exclude_none=True)
+@router.post("/", response_model=BookDB, response_model_exclude_none=True)
 async def create_books(
     book: BookCreate, session: AsyncSession = Depends(get_async_session)
 ) -> Book:
@@ -61,40 +65,12 @@ async def get_all_books(
     return book_all
 
 
-async def check_duplicate(
-    book_description: str, session: AsyncSession
-) -> None:
-    book_id = await book_crud.get_book_id_by_description(
-        book_description, session
-    )
-    if book_id is not None:
-        raise HTTPException(
-            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-            detail="Такое описание книги уже есть!",
-        )
-
-
-async def check_book_exists(book_id: int, session: AsyncSession) -> Book:
-    book = await book_crud.get(
-        book_id,
-        session,
-    )
-    if book is None:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail="Книга не найдена!"
-        )
-    return book
-
-
 @router.get(
-    "/get_by_name", response_model=BookBase, response_model_exclude_none=True
+    "/get_by_title", response_model=BookDB, response_model_exclude_none=True
 )
 async def get_book_by_title(
     book_title: str, session: AsyncSession = Depends(get_async_session)
 ) -> Book:
     book = await book_crud.search_books_by_title(book_title, session)
-    if book is None:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail="Такой книги нет"
-        )
+    await obj_is_empty(book)
     return book
