@@ -6,10 +6,11 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class BookBase(BaseModel):
-    title: str = Field(..., max_length=30, title="Название книги")
+    title: str = Field(..., max_length=128, title="Название книги")
     image: Optional[str] = None
     description: str
-    author: str = Field(..., max_length=64, title="Автор книги")
+    genre: str
+    author: str = Field(..., max_length=128, title="Автор книги")
     date_publication: date = None
     url_download: Optional[str] = None
 
