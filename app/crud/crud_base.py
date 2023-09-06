@@ -22,9 +22,7 @@ class CRUDBase:
         )
         return db_obj.scalars().first()
 
-    async def create(
-        self, obj_in, session: AsyncSession
-    ):
+    async def create(self, obj_in, session: AsyncSession):
         """Создание объекта в БД."""
         obj_in_data = obj_in.dict()
         db_obj = self.model(**obj_in_data)
