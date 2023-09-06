@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.core.user import auth_backend, fastapi_users
 from app.schemas.user import UserRead, UserCreate, UserUpdate
+from constants import METHOD_NOT_ALLOWED
 
 router = APIRouter()
 
@@ -30,3 +31,11 @@ router.include_router(
     prefix="/users",
     tags=["users"],
 )
+
+
+@router.delete("/users/{id}", tags=["user"], deprecated=True)
+def delete_user(user_id: str) -> None:
+    """Нельзя удалять юзеров."""
+    raise HTTPException(
+        status_code=METHOD_NOT_ALLOWED, detail="Нельзя удалять пользователей!"
+    )
