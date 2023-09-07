@@ -1,4 +1,4 @@
-from typing import Union
+from typing import AsyncIterator, Union
 
 from fastapi import Depends
 from fastapi_users import (
@@ -21,7 +21,9 @@ from app.models.user import User
 from app.schemas.user import UserCreate
 
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+async def get_user_db(
+    session: AsyncSession = Depends(get_async_session),
+) -> AsyncIterator[SQLAlchemyUserDatabase]:
     yield SQLAlchemyUserDatabase(session, User)
 
 
@@ -58,7 +60,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
 
 async def get_user_manager(
     user_db: SQLAlchemyUserDatabase = Depends(get_user_db),
-):
+) -> AsyncIterator[SQLAlchemyUserDatabase]:
     yield UserManager(user_db)
 
 

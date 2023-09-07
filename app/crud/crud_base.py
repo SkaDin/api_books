@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User
+ModelType = TypeVar("ModelType")
 
 
 class CRUDBase:
@@ -22,7 +22,7 @@ class CRUDBase:
         )
         return db_obj.scalars().first()
 
-    async def create(self, obj_in, session: AsyncSession):
+    async def create(self, obj_in: dict, session: AsyncSession):
         """Создание объекта в БД."""
         obj_in_data = obj_in.dict()
         db_obj = self.model(**obj_in_data)
@@ -37,7 +37,7 @@ class CRUDBase:
         return db_objs.scalars().all()
 
     @staticmethod
-    async def update(db_obj, obj_in: dict, session: AsyncSession):
+    async def update(db_obj: ModelType, obj_in: dict, session: AsyncSession):
         """Обновление объекта."""
         obj_data = jsonable_encoder(db_obj)
         update_data = obj_in.dict(exclude_unset=True)
@@ -51,7 +51,7 @@ class CRUDBase:
 
     @staticmethod
     async def remove(
-        db_obj,
+        db_obj: ModelType,
         session: AsyncSession,
     ):
         """Удаление объекта."""

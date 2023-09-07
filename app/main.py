@@ -11,4 +11,5 @@ app.include_router(main_router)
 
 @app.on_event("startup")
 async def startup():
+    """Создание суперюзера при инициализации приложения."""
     await create_first_superuser()

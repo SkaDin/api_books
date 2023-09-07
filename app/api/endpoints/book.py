@@ -1,3 +1,4 @@
+import csv
 from typing import Sequence
 
 from fastapi import APIRouter, Depends
@@ -11,7 +12,6 @@ from app.api.validators import (
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
 from app.crud.book import book_crud
-from app.models import User
 from app.models.book import Book
 from app.schemas.book import BookCreate, BookDB, BookUpdate
 
@@ -91,3 +91,16 @@ async def get_book_by_title(
     book = await book_crud.search_books_by_title(book_title, session)
     await obj_is_empty(book)
     return book
+
+
+@router.post("/load_data")
+async def load_test_data(
+    session: AsyncSession = Depends(get_async_session),
+) -> None:
+    """Наполнение БД данными."""
+    with open("my_book_database.csv", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data = Book(**row)  # noqa
+            session.add(data)
+            await session.commit()
