@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,7 +8,9 @@ from app.models.book import Book
 from constants import NOT_FOUND, UNPROCESSABLE_ENTITY
 
 
-async def check_book_exists(book_id: int, session: AsyncSession) -> Book:
+async def check_book_exists(
+    book_id: int, session: AsyncSession
+) -> Optional[Book]:
     book = await book_crud.get(
         book_id,
         session,
@@ -15,7 +19,7 @@ async def check_book_exists(book_id: int, session: AsyncSession) -> Book:
     return book
 
 
-async def obj_is_empty(obj):
+async def obj_is_empty(obj) -> None:
     if obj is None:
         raise HTTPException(status_code=NOT_FOUND, detail="Такой книги нет")
 

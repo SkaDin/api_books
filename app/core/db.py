@@ -3,14 +3,10 @@ from typing import AsyncGenerator
 from sqlalchemy import Column, Integer
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
-    create_async_engine,
     async_sessionmaker,
+    create_async_engine,
 )
-from sqlalchemy.orm import (
-    declarative_base,
-    declared_attr,
-    DeclarativeMeta,
-)
+from sqlalchemy.orm import DeclarativeMeta, declarative_base, declared_attr
 
 from app.core.config import settings
 

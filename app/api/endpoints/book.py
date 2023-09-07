@@ -1,20 +1,19 @@
+import csv
 from typing import Sequence
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (
-    check_duplicate,
     check_book_exists,
+    check_duplicate,
     obj_is_empty,
 )
 from app.core.db import get_async_session
+from app.core.user import current_superuser, current_user
 from app.crud.book import book_crud
-from app.models import User
 from app.models.book import Book
 from app.schemas.book import BookCreate, BookDB, BookUpdate
-from app.core.user import current_user, current_superuser
-
 
 router = APIRouter()
 
@@ -26,8 +25,7 @@ router = APIRouter()
     dependencies=[Depends(current_superuser)],
 )
 async def create_books(
-    book: BookCreate,
-    session: AsyncSession = Depends(get_async_session)
+    book: BookCreate, session: AsyncSession = Depends(get_async_session)
 ) -> Book:
     """Только для администратора."""
     await check_duplicate(book.description, session)
@@ -93,3 +91,16 @@ async def get_book_by_title(
     book = await book_crud.search_books_by_title(book_title, session)
     await obj_is_empty(book)
     return book
+
+
+@router.post("/load_data")
+async def load_test_data(
+    session: AsyncSession = Depends(get_async_session),
+) -> None:
+    """Наполнение БД данными."""
+    with open("my_book_database.csv", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data = Book(**row)  # noqa
+            session.add(data)
+            await session.commit()
