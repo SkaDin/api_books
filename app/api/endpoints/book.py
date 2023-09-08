@@ -82,12 +82,11 @@ async def get_all_books(
     "/get_by_title",
     response_model=BookDB,
     response_model_exclude_none=True,
-    dependencies=[Depends(current_user)],
 )
 async def get_book_by_title(
     book_title: str, session: AsyncSession = Depends(get_async_session)
 ) -> Book:
-    """Расширенный поиск доступный только для зарегистрированных пользователей."""
+    """Расширенный поиск книг по названию."""
     book = await book_crud.search_books_by_title(book_title, session)
     await obj_is_empty(book)
     return book
@@ -96,21 +95,21 @@ async def get_book_by_title(
 @router.post(
     "/load_data",
     dependencies=[Depends(current_superuser)],
-    tags=["Create DataBase"],
 )
 async def load_test_data(
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Наполнение БД данными."""
     with open("my_book_database.csv", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            data = Book(**row)  # noqa
-            session.add(data)
-            await session.commit()
-    with open("my_book_database2.csv", encoding="utf-8") as file_two:
-        reader = csv.DictReader(file_two)
-        for row in reader:
-            data = Book(**row)  # noqa
-            session.add(data)
-            await session.commit()
+        with open("my_book_database2.csv", encoding="utf-8") as file_two:
+            reader = csv.DictReader(file)
+            for row in reader:
+                data = Book(**row)  # noqa
+                session.add(data)
+                await session.commit()
+
+            reader_two = csv.DictReader(file_two)
+            for row in reader_two:
+                data = Book(**row)  # noqa
+                session.add(data)
+                await session.commit()
