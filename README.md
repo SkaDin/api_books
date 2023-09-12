@@ -9,7 +9,7 @@
 ### Используемые технологии:
 - Python 3.11
 - fastapi 0.103.0
-- uvicorn 0.23.2
+- uvicorn
 - sqlalchemy 2.0.20
 - alembic 1.12.0
 - fastapi-users 12.1.2
