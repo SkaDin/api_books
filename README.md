@@ -24,6 +24,8 @@ git clone git@github.com:SkaDin/api_bookstore.git
 poetry install
 
 poetry shell
+
+poetry update
 ```
 #### 3: Создайте и примените миграции БД:
 ```commandline
